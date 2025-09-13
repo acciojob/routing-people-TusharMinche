@@ -1,40 +1,43 @@
-import React, {useEffect, useState } from 'react'
-import { useParams } from 'react-router-dom'
-import axios from "axios";
-import "regenerator-runtime/runtime";
+import React, { useEffect, useState } from "react";
+import { useParams, Link } from "react-router-dom";
 
-const UserDetails = () => {
-  const {id} = useParams();
+function UserDetails() {
+  const { id } = useParams();
   const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchUser = async () => {
-      setUser(null);
-      try {
-        const response = await axios.get(
-          `https://jsonplaceholder.typicode.com/users/${id}`
-        );
-        setUser(response.data);
-      } catch (err) {
-        console.error(err);
-      }
-    };
+    setLoading(true); 
+    setUser(null);  
 
-    fetchUser();
+    setTimeout(() => {
+      fetch(`https://jsonplaceholder.typicode.com/users/${id}`)
+        .then((res) => res.json())
+        .then((data) => {
+          setUser(data);
+          setLoading(false);
+        });
+    }, 300);
   }, [id]);
+
+  if (loading) {
+    return <div>Loading...</div>;
+  }
+
+  if (!user) {
+    return <div>No user found</div>;
+  }
 
   return (
     <div>
-      {user === null ? (
-        <div>Loading...</div>
-      ) : (
-        <p>
-          Name: {user.name}, Username: {user.username}, Email: {user.email}, 
-          Phone: {user.phone}, Website: {user.website}
-        </p>
-      )}
+      <p>Name: {user.name}</p>
+      <p>Username: {user.username}</p>
+      <p>Email: {user.email}</p>
+      <p>Phone: {user.phone}</p>
+      <p>Website: {user.website}</p>
+      <Link to="/">← Back to User List</Link>
     </div>
   );
-};
+}
 
 export default UserDetails;
